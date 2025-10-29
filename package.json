@@ -1,10 +1,14 @@
 {
   "name": "gacha-game-template",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "A template for gacha games with 2D canvas rendering",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "dev": "turbo run dev"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +24,7 @@
     "eslint": "^9.38.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^1.0.0"
   }
 }
