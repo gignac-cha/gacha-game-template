@@ -5,4 +5,4 @@
  */
 
 export { Canvas } from './canvas';
-export type { Point, Size, Vector } from './types';
+export type { Point, Size, Vector, DrawingOptions } from './types';

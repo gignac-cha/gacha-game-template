@@ -21,3 +21,25 @@ export interface Vector {
   dx: number;
   dy: number;
 }
+
+/**
+ * Drawing options for styling canvas operations
+ */
+export interface DrawingOptions {
+  /** Fill color (e.g., '#FF0000', 'red', 'rgba(255, 0, 0, 0.5)') */
+  fill?: string;
+  /** Stroke color */
+  stroke?: string;
+  /** Line width for strokes */
+  lineWidth?: number;
+  /** Font specification for text (e.g., '16px Arial') */
+  font?: string;
+  /** Text alignment */
+  textAlign?: CanvasTextAlign;
+  /** Text baseline */
+  textBaseline?: CanvasTextBaseline;
+  /** Line cap style */
+  lineCap?: CanvasLineCap;
+  /** Line join style */
+  lineJoin?: CanvasLineJoin;
+}

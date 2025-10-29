@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Canvas } from '../sources/canvas';
-import type { Point, Size } from '../sources/types';
+import type { Point, Size, DrawingOptions } from '../sources/types';
 
 describe('Canvas', () => {
   let canvasElement: HTMLCanvasElement;
@@ -29,6 +29,8 @@ describe('Canvas', () => {
       fillStyle: '#000000',
       strokeStyle: '#000000',
       lineWidth: 1,
+      fill: vi.fn(),
+      strokeText: vi.fn(),
     } as unknown as CanvasRenderingContext2D;
 
     // Create mock canvas element
@@ -175,11 +177,11 @@ describe('Canvas', () => {
 
     it('should draw text with options using Point object', () => {
       const position: Point = { x: 10, y: 20 };
-      const options = {
+      const options: DrawingOptions = {
         font: '16px Arial',
         textAlign: 'center' as CanvasTextAlign,
         textBaseline: 'middle' as CanvasTextBaseline,
-        fillStyle: '#FF0000',
+        fill: '#FF0000',
       };
       canvas.text('Hello World', position, options);
 
@@ -191,7 +193,7 @@ describe('Canvas', () => {
     });
 
     it('should draw text with options using x, y coordinates', () => {
-      const options = {
+      const options: DrawingOptions = {
         font: '20px Courier',
         textAlign: 'right' as CanvasTextAlign,
       };
@@ -283,6 +285,132 @@ describe('Canvas', () => {
       expect(mockContext.save).toHaveBeenCalledTimes(7);
       expect(mockContext.restore).toHaveBeenCalledTimes(7);
       expect(mockContext.beginPath).toHaveBeenCalledTimes(7);
+    });
+  });
+
+  describe('Drawing options', () => {
+    describe('Fill and stroke', () => {
+      it('should fill rectangle when fill option is provided', () => {
+        const options: DrawingOptions = { fill: '#FF0000' };
+        canvas.rectangle(10, 20, 30, 40, options);
+
+        expect(mockContext.fillStyle).toBe('#FF0000');
+        expect(mockContext.fillRect).toHaveBeenCalledWith(10, 20, 30, 40);
+      });
+
+      it('should stroke rectangle when stroke option is provided', () => {
+        const options: DrawingOptions = { stroke: '#0000FF', lineWidth: 2 };
+        canvas.rectangle(10, 20, 30, 40, options);
+
+        expect(mockContext.strokeStyle).toBe('#0000FF');
+        expect(mockContext.lineWidth).toBe(2);
+        expect(mockContext.strokeRect).toHaveBeenCalledWith(10, 20, 30, 40);
+      });
+
+      it('should both fill and stroke rectangle when both options are provided', () => {
+        const options: DrawingOptions = { fill: '#FF0000', stroke: '#0000FF' };
+        canvas.rectangle(10, 20, 30, 40, options);
+
+        expect(mockContext.fillRect).toHaveBeenCalledWith(10, 20, 30, 40);
+        expect(mockContext.strokeRect).toHaveBeenCalledWith(10, 20, 30, 40);
+      });
+
+      it('should default to stroke for rectangle when no options provided', () => {
+        canvas.rectangle(10, 20, 30, 40);
+
+        expect(mockContext.strokeRect).toHaveBeenCalledWith(10, 20, 30, 40);
+        expect(mockContext.fillRect).not.toHaveBeenCalled();
+      });
+
+      it('should fill circle when fill option is provided', () => {
+        const options: DrawingOptions = { fill: '#00FF00' };
+        canvas.circle(50, 50, 25, options);
+
+        expect(mockContext.fillStyle).toBe('#00FF00');
+        expect(mockContext.fill).toHaveBeenCalled();
+      });
+
+      it('should stroke circle when stroke option is provided', () => {
+        const options: DrawingOptions = { stroke: '#FF00FF' };
+        canvas.circle(50, 50, 25, options);
+
+        expect(mockContext.strokeStyle).toBe('#FF00FF');
+        expect(mockContext.stroke).toHaveBeenCalled();
+      });
+
+      it('should default to stroke for circle when no options provided', () => {
+        canvas.circle(50, 50, 25);
+
+        expect(mockContext.stroke).toHaveBeenCalled();
+        expect(mockContext.fill).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Line styling', () => {
+      it('should apply lineWidth to line', () => {
+        const options: DrawingOptions = { stroke: '#FF0000', lineWidth: 5 };
+        canvas.line(0, 0, 100, 100, options);
+
+        expect(mockContext.strokeStyle).toBe('#FF0000');
+        expect(mockContext.lineWidth).toBe(5);
+        expect(mockContext.stroke).toHaveBeenCalled();
+      });
+
+      it('should apply lineWidth to polyline', () => {
+        const points: Point[] = [{ x: 0, y: 0 }, { x: 50, y: 50 }, { x: 100, y: 0 }];
+        const options: DrawingOptions = { stroke: '#00FF00', lineWidth: 3 };
+        canvas.lines(points, options);
+
+        expect(mockContext.strokeStyle).toBe('#00FF00');
+        expect(mockContext.lineWidth).toBe(3);
+      });
+    });
+
+    describe('Text styling', () => {
+      it('should apply font option to text', () => {
+        const options: DrawingOptions = { font: '20px Arial', fill: '#FF0000' };
+        canvas.text('Hello', 10, 20, options);
+
+        expect(mockContext.font).toBe('20px Arial');
+        expect(mockContext.fillStyle).toBe('#FF0000');
+        expect(mockContext.fillText).toHaveBeenCalledWith('Hello', 10, 20);
+      });
+
+      it('should apply textAlign option', () => {
+        const options: DrawingOptions = { textAlign: 'center' };
+        canvas.text('Centered', 50, 50, options);
+
+        expect(mockContext.textAlign).toBe('center');
+      });
+
+      it('should stroke text when stroke option is provided', () => {
+        const options: DrawingOptions = { stroke: '#0000FF', lineWidth: 1 };
+        canvas.text('Outlined', 10, 20, options);
+
+        expect(mockContext.fillText).toHaveBeenCalledWith('Outlined', 10, 20);
+        expect(mockContext.strokeText).toHaveBeenCalledWith('Outlined', 10, 20);
+      });
+    });
+
+    describe('Options with Point overload', () => {
+      it('should work with Point objects', () => {
+        const point: Point = { x: 100, y: 200 };
+        const options: DrawingOptions = { fill: '#FFFF00' };
+        canvas.dot(point, options);
+
+        expect(mockContext.fillStyle).toBe('#FFFF00');
+        expect(mockContext.fillRect).toHaveBeenCalledWith(100, 200, 1, 1);
+      });
+
+      it('should work with Point and Size objects', () => {
+        const point: Point = { x: 10, y: 20 };
+        const size: Size = { width: 30, height: 40 };
+        const options: DrawingOptions = { fill: '#FF00FF' };
+        canvas.rectangle(point, size, options);
+
+        expect(mockContext.fillStyle).toBe('#FF00FF');
+        expect(mockContext.fillRect).toHaveBeenCalledWith(10, 20, 30, 40);
+      });
     });
   });
 });
