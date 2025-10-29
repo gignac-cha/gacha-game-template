@@ -20,11 +20,15 @@ describe('Canvas', () => {
       stroke: vi.fn(),
       fillText: vi.fn(),
       drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
       // Properties that can be set
       font: '',
       textAlign: 'start' as CanvasTextAlign,
       textBaseline: 'alphabetic' as CanvasTextBaseline,
       fillStyle: '#000000',
+      strokeStyle: '#000000',
+      lineWidth: 1,
     } as unknown as CanvasRenderingContext2D;
 
     // Create mock canvas element
@@ -229,9 +233,56 @@ describe('Canvas', () => {
       canvas.text('Test', { x: 150, y: 150 });
 
       expect(mockContext.fillRect).toHaveBeenCalledTimes(1);
-      expect(mockContext.beginPath).toHaveBeenCalledTimes(2); // line + circle
+      expect(mockContext.beginPath).toHaveBeenCalledTimes(5); // all methods now call beginPath
       expect(mockContext.strokeRect).toHaveBeenCalledTimes(1);
       expect(mockContext.fillText).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Context isolation', () => {
+    it('should save and restore context for each drawing operation', () => {
+      canvas.dot(10, 20);
+
+      expect(mockContext.save).toHaveBeenCalled();
+      expect(mockContext.beginPath).toHaveBeenCalled();
+      expect(mockContext.restore).toHaveBeenCalled();
+    });
+
+    it('should isolate fillStyle changes between operations', () => {
+      // Set a style in one operation
+      mockContext.fillStyle = '#FF0000';
+      canvas.dot(10, 20);
+
+      // Verify restore was called to reset state
+      expect(mockContext.restore).toHaveBeenCalled();
+
+      // Reset mock to track new calls
+      vi.clearAllMocks();
+
+      // Another operation should start with clean state
+      canvas.line(0, 0, 10, 10);
+      expect(mockContext.save).toHaveBeenCalled();
+      expect(mockContext.restore).toHaveBeenCalled();
+    });
+
+    it('should ensure all drawing methods use context isolation', () => {
+      const point: Point = { x: 10, y: 20 };
+      const size: Size = { width: 30, height: 40 };
+      const mockImage = {} as HTMLImageElement;
+
+      // Test each method
+      canvas.dot(point);
+      canvas.line(point, { x: 30, y: 40 });
+      canvas.lines([point, { x: 30, y: 40 }, { x: 50, y: 60 }]);
+      canvas.rectangle(point, size);
+      canvas.circle(point, 25);
+      canvas.text('Test', point);
+      canvas.image(mockImage, point);
+
+      // Each method should have called save and restore
+      expect(mockContext.save).toHaveBeenCalledTimes(7);
+      expect(mockContext.restore).toHaveBeenCalledTimes(7);
+      expect(mockContext.beginPath).toHaveBeenCalledTimes(7);
     });
   });
 });

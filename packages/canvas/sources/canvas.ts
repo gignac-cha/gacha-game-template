@@ -15,6 +15,17 @@ export class Canvas {
     this.context = ctx;
   }
 
+  /**
+   * Private wrapper that ensures all drawing operations are isolated
+   * by saving/restoring the canvas state and beginning a new path.
+   */
+  private _draw(drawingFunction: (context: CanvasRenderingContext2D) => void): void {
+    this.context.save();
+    this.context.beginPath();
+    drawingFunction(this.context);
+    this.context.restore();
+  }
+
   // ========== Dot Methods ==========
 
   /**
@@ -29,7 +40,9 @@ export class Canvas {
     const x = typeof pointOrX === 'number' ? pointOrX : pointOrX.x;
     const finalY = typeof pointOrX === 'number' ? y! : pointOrX.y;
 
-    this.context.fillRect(x, finalY, 1, 1);
+    this._draw((ctx) => {
+      ctx.fillRect(x, finalY, 1, 1);
+    });
   }
 
   // ========== Line Methods ==========
@@ -59,10 +72,11 @@ export class Canvas {
       finalY2 = (endOrY1 as Point).y;
     }
 
-    this.context.beginPath();
-    this.context.moveTo(x1, y1);
-    this.context.lineTo(finalX2, finalY2);
-    this.context.stroke();
+    this._draw((ctx) => {
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(finalX2, finalY2);
+      ctx.stroke();
+    });
   }
 
   // ========== Lines (Polyline) Methods ==========
@@ -73,14 +87,15 @@ export class Canvas {
   lines(points: Point[]): void {
     if (points.length < 2) return;
 
-    this.context.beginPath();
-    this.context.moveTo(points[0].x, points[0].y);
+    this._draw((ctx) => {
+      ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 1; i < points.length; i++) {
-      this.context.lineTo(points[i].x, points[i].y);
-    }
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
 
-    this.context.stroke();
+      ctx.stroke();
+    });
   }
 
   // ========== Rectangle Methods ==========
@@ -110,7 +125,9 @@ export class Canvas {
       h = (sizeOrY as Size).height;
     }
 
-    this.context.strokeRect(x, y, w, h);
+    this._draw((ctx) => {
+      ctx.strokeRect(x, y, w, h);
+    });
   }
 
   // ========== Circle Methods ==========
@@ -138,9 +155,10 @@ export class Canvas {
       r = radiusOrY;
     }
 
-    this.context.beginPath();
-    this.context.arc(x, y, r, 0, Math.PI * 2);
-    this.context.stroke();
+    this._draw((ctx) => {
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+    });
   }
 
   // ========== Text Methods ==========
@@ -168,15 +186,17 @@ export class Canvas {
       finalOptions = yOrOptions as { [key: string]: any } | undefined;
     }
 
-    // Apply options if provided
-    if (finalOptions) {
-      if (finalOptions.font) this.context.font = finalOptions.font;
-      if (finalOptions.textAlign) this.context.textAlign = finalOptions.textAlign;
-      if (finalOptions.textBaseline) this.context.textBaseline = finalOptions.textBaseline;
-      if (finalOptions.fillStyle) this.context.fillStyle = finalOptions.fillStyle;
-    }
+    this._draw((ctx) => {
+      // Apply options if provided
+      if (finalOptions) {
+        if (finalOptions.font) ctx.font = finalOptions.font;
+        if (finalOptions.textAlign) ctx.textAlign = finalOptions.textAlign;
+        if (finalOptions.textBaseline) ctx.textBaseline = finalOptions.textBaseline;
+        if (finalOptions.fillStyle) ctx.fillStyle = finalOptions.fillStyle;
+      }
 
-    this.context.fillText(content, x, y);
+      ctx.fillText(content, x, y);
+    });
   }
 
   // ========== Image Methods ==========
@@ -193,6 +213,8 @@ export class Canvas {
     const x = typeof positionOrX === 'number' ? positionOrX : positionOrX.x;
     const finalY = typeof positionOrX === 'number' ? y! : positionOrX.y;
 
-    this.context.drawImage(image, x, finalY);
+    this._draw((ctx) => {
+      ctx.drawImage(image, x, finalY);
+    });
   }
 }
