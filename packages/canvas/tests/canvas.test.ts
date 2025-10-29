@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Canvas } from '../sources/canvas';
 import type { Point, Size, DrawingOptions } from '../sources/types';
+import { ZodError } from 'zod';
 
 describe('Canvas', () => {
   let canvasElement: HTMLCanvasElement;
@@ -411,6 +412,74 @@ describe('Canvas', () => {
         expect(mockContext.fillStyle).toBe('#FF00FF');
         expect(mockContext.fillRect).toHaveBeenCalledWith(10, 20, 30, 40);
       });
+    });
+  });
+
+  describe('Runtime validation with zod', () => {
+    it('should throw ZodError for invalid lineWidth (negative)', () => {
+      const invalidOptions = { lineWidth: -5 } as any;
+
+      expect(() => {
+        canvas.line(0, 0, 100, 100, invalidOptions);
+      }).toThrow(ZodError);
+    });
+
+    it('should throw ZodError for invalid lineWidth (string)', () => {
+      const invalidOptions = { lineWidth: 'thick' } as any;
+
+      expect(() => {
+        canvas.rectangle(10, 20, 30, 40, invalidOptions);
+      }).toThrow(ZodError);
+    });
+
+    it('should throw ZodError for invalid textAlign', () => {
+      const invalidOptions = { textAlign: 'invalid' } as any;
+
+      expect(() => {
+        canvas.text('Test', 10, 20, invalidOptions);
+      }).toThrow(ZodError);
+    });
+
+    it('should throw ZodError for invalid lineCap', () => {
+      const invalidOptions = { lineCap: 'invalid' } as any;
+
+      expect(() => {
+        canvas.line(0, 0, 100, 100, invalidOptions);
+      }).toThrow(ZodError);
+    });
+
+    it('should throw ZodError for unknown properties (strict mode)', () => {
+      const invalidOptions = { unknownProp: 'value' } as any;
+
+      expect(() => {
+        canvas.circle(50, 50, 25, invalidOptions);
+      }).toThrow(ZodError);
+    });
+
+    it('should accept valid options without throwing', () => {
+      const validOptions: DrawingOptions = {
+        fill: '#FF0000',
+        stroke: '#0000FF',
+        lineWidth: 2,
+        font: '16px Arial',
+        textAlign: 'center',
+        textBaseline: 'middle',
+        lineCap: 'round',
+        lineJoin: 'bevel',
+      };
+
+      expect(() => {
+        canvas.rectangle(10, 20, 30, 40, validOptions);
+      }).not.toThrow();
+    });
+
+    it('should accept zero lineWidth', () => {
+      // Note: zero is not positive, so this should throw
+      const invalidOptions = { lineWidth: 0 } as any;
+
+      expect(() => {
+        canvas.line(0, 0, 100, 100, invalidOptions);
+      }).toThrow(ZodError);
     });
   });
 });

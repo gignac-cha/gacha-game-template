@@ -6,3 +6,4 @@
 
 export { Canvas } from './canvas';
 export type { Point, Size, Vector, DrawingOptions } from './types';
+export { DrawingOptionsSchema } from './types';

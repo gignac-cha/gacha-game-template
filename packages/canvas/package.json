@@ -31,5 +31,8 @@
     "rendering",
     "graphics",
     "gacha"
-  ]
+  ],
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
 }

@@ -1,4 +1,5 @@
 import type { Point, Size, DrawingOptions } from './types';
+import { DrawingOptionsSchema } from './types';
 
 /**
  * Canvas class wraps HTMLCanvasElement and provides a flexible, overloaded API
@@ -27,10 +28,13 @@ export class Canvas {
   }
 
   /**
-   * Apply drawing options to the context
+   * Apply drawing options to the context with runtime validation
    */
   private _applyOptions(ctx: CanvasRenderingContext2D, options?: DrawingOptions): void {
     if (!options) return;
+
+    // Runtime validation with zod
+    DrawingOptionsSchema.parse(options);
 
     if (options.fill !== undefined) ctx.fillStyle = options.fill;
     if (options.stroke !== undefined) ctx.strokeStyle = options.stroke;
@@ -273,8 +277,20 @@ export class Canvas {
    */
   image(image: HTMLImageElement, x: number, y: number): void;
   image(image: HTMLImageElement, positionOrX: Point | number, y?: number): void {
-    const x = typeof positionOrX === 'number' ? positionOrX : positionOrX.x;
-    const finalY = typeof positionOrX === 'number' ? y! : positionOrX.y;
+    let x: number, finalY: number;
+
+    if (typeof positionOrX === 'number') {
+      // number overload - y must be defined
+      if (y === undefined) {
+        throw new Error('y coordinate is required when x is a number');
+      }
+      x = positionOrX;
+      finalY = y;
+    } else {
+      // Point overload
+      x = positionOrX.x;
+      finalY = positionOrX.y;
+    }
 
     this._draw((ctx) => {
       ctx.drawImage(image, x, finalY);

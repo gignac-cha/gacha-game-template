@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * Represents a 2D point with x and y coordinates
  */
@@ -43,3 +45,17 @@ export interface DrawingOptions {
   /** Line join style */
   lineJoin?: CanvasLineJoin;
 }
+
+/**
+ * Zod schema for validating DrawingOptions at runtime
+ */
+export const DrawingOptionsSchema = z.object({
+  fill: z.string().optional(),
+  stroke: z.string().optional(),
+  lineWidth: z.number().positive().optional(),
+  font: z.string().optional(),
+  textAlign: z.enum(['start', 'end', 'left', 'right', 'center']).optional(),
+  textBaseline: z.enum(['top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom']).optional(),
+  lineCap: z.enum(['butt', 'round', 'square']).optional(),
+  lineJoin: z.enum(['bevel', 'round', 'miter']).optional(),
+}).strict();
