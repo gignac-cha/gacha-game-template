@@ -79,6 +79,33 @@ describe('Canvas', () => {
         canvasElement.height
       );
     });
+
+    it('should clear specific area using x, y, width, height', () => {
+      canvas.clear(10, 20, 100, 50);
+
+      expect(mockContext.clearRect).toHaveBeenCalledWith(10, 20, 100, 50);
+    });
+
+    it('should clear specific area using Point and Size objects', () => {
+      const topLeft: Point = { x: 30, y: 40 };
+      const size: Size = { width: 200, height: 150 };
+      canvas.clear(topLeft, size);
+
+      expect(mockContext.clearRect).toHaveBeenCalledWith(30, 40, 200, 150);
+    });
+
+    it('should throw error when coordinates are incomplete', () => {
+      expect(() => {
+        (canvas as any).clear(10, 20, 100);
+      }).toThrow('When clearing with coordinates, all parameters (x, y, width, height) are required');
+    });
+
+    it('should throw error when Point is provided without Size', () => {
+      const point: Point = { x: 10, y: 20 };
+      expect(() => {
+        (canvas as any).clear(point);
+      }).toThrow('When clearing with Point, Size object is required');
+    });
   });
 
   describe('dot method', () => {

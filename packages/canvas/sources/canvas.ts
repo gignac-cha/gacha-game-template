@@ -19,8 +19,32 @@ export class Canvas {
   /**
    * Clear the entire canvas
    */
-  clear(): void {
-    this.context.clearRect(0, 0, this.element.width, this.element.height);
+  clear(): void;
+  /**
+   * Clear a specific rectangular area of the canvas
+   */
+  clear(x: number, y: number, width: number, height: number): void;
+  /**
+   * Clear a specific rectangular area using Point and Size objects
+   */
+  clear(topLeft: Point, size: Size): void;
+  clear(topLeftOrX?: Point | number, sizeOrY?: Size | number, width?: number, height?: number): void {
+    if (topLeftOrX === undefined) {
+      // No arguments - clear entire canvas
+      this.context.clearRect(0, 0, this.element.width, this.element.height);
+    } else if (typeof topLeftOrX === 'number') {
+      // number overload - x, y, width, height
+      if (sizeOrY === undefined || width === undefined || height === undefined) {
+        throw new Error('When clearing with coordinates, all parameters (x, y, width, height) are required');
+      }
+      this.context.clearRect(topLeftOrX, sizeOrY as number, width, height);
+    } else {
+      // Point + Size overload
+      if (!sizeOrY || typeof sizeOrY === 'number') {
+        throw new Error('When clearing with Point, Size object is required');
+      }
+      this.context.clearRect(topLeftOrX.x, topLeftOrX.y, (sizeOrY as Size).width, (sizeOrY as Size).height);
+    }
   }
 
   /**
