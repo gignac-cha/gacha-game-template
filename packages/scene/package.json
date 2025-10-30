@@ -1,3 +1,37 @@
 {
-  "name": "@canvas-core/scene"
+  "name": "@gacha-game-template/scene",
+  "version": "0.0.1",
+  "description": "Scene management for orchestrating layer rendering",
+  "main": "./outputs/index.js",
+  "module": "./outputs/index.js",
+  "types": "./outputs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./outputs/index.d.ts",
+      "import": "./outputs/index.js",
+      "require": "./outputs/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gacha-game-template/layer": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@vitest/ui": "^1.6.1",
+    "jsdom": "^23.2.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.6.1"
+  },
+  "keywords": [
+    "scene",
+    "layer",
+    "rendering",
+    "gacha"
+  ]
 }
