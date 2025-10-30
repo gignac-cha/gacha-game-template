@@ -17,6 +17,13 @@ export class Canvas {
   }
 
   /**
+   * Clear the entire canvas
+   */
+  clear(): void {
+    this.context.clearRect(0, 0, this.element.width, this.element.height);
+  }
+
+  /**
    * Private wrapper that ensures all drawing operations are isolated
    * by saving/restoring the canvas state and beginning a new path.
    */

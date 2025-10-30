@@ -23,6 +23,7 @@ describe('Canvas', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
+      clearRect: vi.fn(),
       // Properties that can be set
       font: '',
       textAlign: 'start' as CanvasTextAlign,
@@ -36,6 +37,8 @@ describe('Canvas', () => {
 
     // Create mock canvas element
     canvasElement = {
+      width: 800,
+      height: 600,
       getContext: vi.fn().mockReturnValue(mockContext),
     } as unknown as HTMLCanvasElement;
 
@@ -55,6 +58,25 @@ describe('Canvas', () => {
 
       expect(() => new Canvas(invalidCanvas)).toThrow(
         'Failed to get 2D rendering context. Canvas may already be using a different context type.'
+      );
+    });
+  });
+
+  describe('clear method', () => {
+    it('should clear the entire canvas', () => {
+      canvas.clear();
+
+      expect(mockContext.clearRect).toHaveBeenCalledWith(0, 0, 800, 600);
+    });
+
+    it('should use canvas element dimensions', () => {
+      canvas.clear();
+
+      expect(mockContext.clearRect).toHaveBeenCalledWith(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
       );
     });
   });
