@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./sources",
+    "composite": true
+  },
+  "include": ["sources/**/*"],
+  "references": [
+    { "path": "../../packages/canvas" },
+    { "path": "../../packages/layer" },
+    { "path": "../../packages/scene" }
+  ]
+}

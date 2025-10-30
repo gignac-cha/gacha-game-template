@@ -1,3 +1,20 @@
 {
-  "name": "playground"
+  "name": "playground",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@gacha-game-template/canvas": "workspace:*",
+    "@gacha-game-template/layer": "workspace:*",
+    "@gacha-game-template/scene": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.1"
+  }
 }
